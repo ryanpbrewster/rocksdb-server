@@ -1,6 +1,8 @@
 const grpc = require("grpc");
+const loader = require("@grpc/proto-loader");
 
-const proto = grpc.load("../server/proto/helloworld/helloworld.proto");
+const definition = loader.loadSync("../server/proto/helloworld/helloworld.proto");
+const proto = grpc.loadPackageDefinition(definition);
 const client = new proto.helloworld.Greeter("localhost:50051", grpc.credentials.createInsecure());
 
 client.sayHello({ name: "Earl" }, (err, resp) => {
