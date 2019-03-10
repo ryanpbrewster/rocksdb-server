@@ -5,9 +5,11 @@ use tower_h2::Server;
 
 use rocksdb_server::server::ServerImpl;
 use rocksdb_server::storage::InMemoryStorageLayer;
+use rocksdb_server::storage::RocksDbStorageLayer;
 
 pub fn main() {
-    let kvstore = ServerImpl::new(InMemoryStorageLayer::default());
+    // let kvstore = ServerImpl::new(InMemoryStorageLayer::default());
+    let kvstore = ServerImpl::new(RocksDbStorageLayer::new("/tmp/foo".to_string()));
     let mut server = Server::new(
         kvstore.into_service(),
         Default::default(),

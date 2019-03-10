@@ -13,6 +13,7 @@ bytes = "0.4"
 futures = "0.1"
 prost = "0.4"
 prost-derive = "0.4"
+rocksdb = "0.11.0"
 tokio = "0.1"
 tower-h2 = { git = "https://github.com/tower-rs/tower-h2" }
 tower-grpc = { git = "https://github.com/tower-rs/tower-grpc" }
