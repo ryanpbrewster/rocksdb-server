@@ -629,6 +629,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "rocksdb-server"
+version = "0.1.0"
+dependencies = [
+ "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "env_logger 0.5.13 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
+ "http 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "prost 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "prost-derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_derive 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tokio 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tower-add-origin 0.1.0 (git+https://github.com/tower-rs/tower-http)",
+ "tower-grpc 0.1.0 (git+https://github.com/tower-rs/tower-grpc)",
+ "tower-grpc-build 0.1.0",
+ "tower-h2 0.1.0 (git+https://github.com/tower-rs/tower-h2)",
+ "tower-service 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tower-util 0.1.0 (git+https://github.com/tower-rs/tower)",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -980,29 +1003,6 @@ dependencies = [
  "codegen 0.1.0 (git+https://github.com/carllerche/codegen)",
  "heck 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost-build 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "tower-grpc-examples"
-version = "0.1.0"
-dependencies = [
- "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "env_logger 0.5.13 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
- "http 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "prost 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "prost-derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_derive 1.0.89 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 1.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
- "tokio 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
- "tower-add-origin 0.1.0 (git+https://github.com/tower-rs/tower-http)",
- "tower-grpc 0.1.0 (git+https://github.com/tower-rs/tower-grpc)",
- "tower-grpc-build 0.1.0",
- "tower-h2 0.1.0 (git+https://github.com/tower-rs/tower-h2)",
- "tower-service 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "tower-util 0.1.0 (git+https://github.com/tower-rs/tower)",
 ]
 
 [[package]]

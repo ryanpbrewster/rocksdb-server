@@ -1,31 +1,11 @@
 [package]
-name = "tower-grpc-examples"
+name = "rocksdb-server"
 version = "0.1.0"
-authors = ["Carl Lerche <me@carllerche.com>"]
+authors = ["Ryan Brewster <ryanpbrewster@google.com"]
 
 [[bin]]
-name = "helloworld-server"
-path = "src/helloworld/server.rs"
-
-[[bin]]
-name = "helloworld-client"
-path = "src/helloworld/client.rs"
-
-[[bin]]
-name = "metadata-server"
-path = "src/metadata/server.rs"
-
-[[bin]]
-name = "metadata-client"
-path = "src/metadata/client.rs"
-
-[[bin]]
-name = "route-guide-server"
-path = "src/routeguide/server.rs"
-
-[[bin]]
-name = "route-guide-client"
-path = "src/routeguide/client.rs"
+name = "server"
+path = "src/bin/run-server.rs"
 
 [dependencies]
 futures = "0.1"
