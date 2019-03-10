@@ -7,23 +7,29 @@ extern crate prost;
 #[macro_use]
 extern crate prost_derive;
 extern crate tokio;
-extern crate tower_h2;
 extern crate tower_grpc;
+extern crate tower_h2;
 
 pub mod proto {
     include!(concat!(env!("OUT_DIR"), "/kvstore.rs"));
 }
 
-use proto::{server, HelloRequest, HelloResponse, PutRequest, PutResponse, GetRequest, GetResponse};
+use proto::{
+    server, GetRequest, GetResponse, HelloRequest, HelloResponse, PutRequest, PutResponse,
+};
 
 use futures::{future, Future, Stream};
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use tokio::executor::DefaultExecutor;
 use tokio::net::TcpListener;
+use tower_grpc::{Code, Request, Response, Status};
 use tower_h2::Server;
-use tower_grpc::{Request, Response, Status, Code};
 
-#[derive(Clone, Debug)]
-struct KvStoreServerImpl;
+#[derive(Clone, Debug, Default)]
+struct KvStoreServerImpl {
+    data: Arc<Mutex<HashMap<String, String>>>,
+}
 
 impl server::KvStore for KvStoreServerImpl {
     type SayHelloFuture = future::FutureResult<Response<HelloResponse>, Status>;
@@ -42,19 +48,29 @@ impl server::KvStore for KvStoreServerImpl {
 
     fn put(&mut self, request: Request<PutRequest>) -> Self::PutFuture {
         println!("REQUEST = {:?}", request);
-        future::err(Status::new(Code::Unimplemented, "Put unimplemented"))
+        self.data.lock().unwrap().insert(
+            request.get_ref().key.clone(),
+            request.get_ref().value.clone(),
+        );
+        future::ok(Response::new(PutResponse {}))
     }
 
     fn get(&mut self, request: Request<GetRequest>) -> Self::GetFuture {
         println!("REQUEST = {:?}", request);
-        future::err(Status::new(Code::Unimplemented, "Get unimplemented"))
+
+        let key = request.get_ref().key.clone();
+        if let Some(value) = self.data.lock().unwrap().get(&key).cloned() {
+            future::ok(Response::new(GetResponse { value }))
+        } else {
+            future::err(Status::new(Code::NotFound, format!("no such key: {}", key)))
+        }
     }
 }
 
 pub fn main() {
     let _ = ::env_logger::init();
 
-    let new_service = server::KvStoreServer::new(KvStoreServerImpl);
+    let new_service = server::KvStoreServer::new(KvStoreServerImpl::default());
 
     let h2_settings = Default::default();
     let mut h2 = Server::new(new_service, h2_settings, DefaultExecutor::current());
@@ -62,7 +78,8 @@ pub fn main() {
     let addr = "[::1]:50051".parse().unwrap();
     let bind = TcpListener::bind(&addr).expect("bind");
 
-    let serve = bind.incoming()
+    let serve = bind
+        .incoming()
         .for_each(move |sock| {
             if let Err(e) = sock.set_nodelay(true) {
                 return Err(e);

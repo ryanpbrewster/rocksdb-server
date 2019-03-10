@@ -20,7 +20,7 @@ async function main() {
 
   console.log("starting put...");
   await new Promise(resolve => {
-    client.put({ name: "Earl" }, (err, resp) => {
+    client.put({ key: "my_key", value: `t = ${Date.now()}` }, (err, resp) => {
       if (err) {
         console.error(err);
       } else {
@@ -30,9 +30,21 @@ async function main() {
     });
   });
 
-  console.log("starting get...");
+  console.log("starting first get...");
   await new Promise(resolve => {
-    client.get({ name: "Earl" }, (err, resp) => {
+    client.get({ key: "my_key" }, (err, resp) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(resp);
+      }
+      resolve();
+    });
+  });
+
+  console.log("starting second get...");
+  await new Promise(resolve => {
+    client.get({ key: "non-existent key" }, (err, resp) => {
       if (err) {
         console.error(err);
       } else {
