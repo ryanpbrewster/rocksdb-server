@@ -10,11 +10,11 @@ extern crate tokio;
 extern crate tower_h2;
 extern crate tower_grpc;
 
-pub mod hello_world {
-    include!(concat!(env!("OUT_DIR"), "/helloworld.rs"));
+pub mod proto {
+    include!(concat!(env!("OUT_DIR"), "/kvstore.rs"));
 }
 
-use hello_world::{server, HelloRequest, HelloReply};
+use proto::{server, HelloRequest, HelloReply};
 
 use futures::{future, Future, Stream};
 use tokio::executor::DefaultExecutor;
@@ -23,9 +23,9 @@ use tower_h2::Server;
 use tower_grpc::{Request, Response};
 
 #[derive(Clone, Debug)]
-struct Greet;
+struct KvStoreServerImpl;
 
-impl server::Greeter for Greet {
+impl server::KvStore for KvStoreServerImpl {
     type SayHelloFuture = future::FutureResult<Response<HelloReply>, tower_grpc::Status>;
 
     fn say_hello(&mut self, request: Request<HelloRequest>) -> Self::SayHelloFuture {
@@ -42,7 +42,7 @@ impl server::Greeter for Greet {
 pub fn main() {
     let _ = ::env_logger::init();
 
-    let new_service = server::GreeterServer::new(Greet);
+    let new_service = server::KvStoreServer::new(KvStoreServerImpl);
 
     let h2_settings = Default::default();
     let mut h2 = Server::new(new_service, h2_settings, DefaultExecutor::current());
