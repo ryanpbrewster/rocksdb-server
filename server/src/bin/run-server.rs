@@ -3,10 +3,11 @@ use tokio::executor::DefaultExecutor;
 use tokio::net::TcpListener;
 use tower_h2::Server;
 
-use rocksdb_server::server::InMemoryKvStore;
+use rocksdb_server::server::ServerImpl;
+use rocksdb_server::storage::InMemoryStorageLayer;
 
 pub fn main() {
-    let kvstore = InMemoryKvStore::default();
+    let kvstore = ServerImpl::new(InMemoryStorageLayer::default());
     let mut server = Server::new(
         kvstore.into_service(),
         Default::default(),
