@@ -1,9 +1,5 @@
 extern crate bytes;
-extern crate env_logger;
 extern crate futures;
-#[macro_use]
-extern crate log;
-extern crate prost;
 #[macro_use]
 extern crate prost_derive;
 extern crate tokio;
@@ -68,12 +64,9 @@ impl server::KvStore for KvStoreServerImpl {
 }
 
 pub fn main() {
-    let _ = ::env_logger::init();
-
     let new_service = server::KvStoreServer::new(KvStoreServerImpl::default());
 
-    let h2_settings = Default::default();
-    let mut h2 = Server::new(new_service, h2_settings, DefaultExecutor::current());
+    let mut server = Server::new(new_service, Default::default(), DefaultExecutor::current());
 
     let addr = "[::1]:50051".parse().unwrap();
     let bind = TcpListener::bind(&addr).expect("bind");
@@ -85,8 +78,8 @@ pub fn main() {
                 return Err(e);
             }
 
-            let serve = h2.serve(sock);
-            tokio::spawn(serve.map_err(|e| error!("h2 error: {:?}", e)));
+            let serve = server.serve(sock);
+            tokio::spawn(serve.map_err(|e| eprintln!("h2 error: {:?}", e)));
 
             Ok(())
         })
