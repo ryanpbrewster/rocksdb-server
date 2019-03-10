@@ -14,28 +14,40 @@ pub mod proto {
     include!(concat!(env!("OUT_DIR"), "/kvstore.rs"));
 }
 
-use proto::{server, HelloRequest, HelloReply};
+use proto::{server, HelloRequest, HelloResponse, PutRequest, PutResponse, GetRequest, GetResponse};
 
 use futures::{future, Future, Stream};
 use tokio::executor::DefaultExecutor;
 use tokio::net::TcpListener;
 use tower_h2::Server;
-use tower_grpc::{Request, Response};
+use tower_grpc::{Request, Response, Status, Code};
 
 #[derive(Clone, Debug)]
 struct KvStoreServerImpl;
 
 impl server::KvStore for KvStoreServerImpl {
-    type SayHelloFuture = future::FutureResult<Response<HelloReply>, tower_grpc::Status>;
+    type SayHelloFuture = future::FutureResult<Response<HelloResponse>, Status>;
+    type PutFuture = future::FutureResult<Response<PutResponse>, Status>;
+    type GetFuture = future::FutureResult<Response<GetResponse>, Status>;
 
     fn say_hello(&mut self, request: Request<HelloRequest>) -> Self::SayHelloFuture {
         println!("REQUEST = {:?}", request);
 
-        let response = Response::new(HelloReply {
+        let response = Response::new(HelloResponse {
             message: "Zomg, it works!".to_string(),
         });
 
         future::ok(response)
+    }
+
+    fn put(&mut self, request: Request<PutRequest>) -> Self::PutFuture {
+        println!("REQUEST = {:?}", request);
+        future::err(Status::new(Code::Unimplemented, "Put unimplemented"))
+    }
+
+    fn get(&mut self, request: Request<GetRequest>) -> Self::GetFuture {
+        println!("REQUEST = {:?}", request);
+        future::err(Status::new(Code::Unimplemented, "Get unimplemented"))
     }
 }
 
