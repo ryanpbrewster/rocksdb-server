@@ -2,9 +2,17 @@ use rocksdb;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
+use crate::{KvError, KvResult};
+
 pub trait StorageLayer: Clone {
-    fn put(&self, key: String, value: String);
-    fn get(&self, key: &str) -> Option<String>;
+    fn put(&self, key: String, value: String) -> KvResult<()>;
+    fn get(&self, key: &str) -> KvResult<Option<String>>;
+}
+
+impl From<rocksdb::Error> for KvError {
+    fn from(err: rocksdb::Error) -> Self {
+        KvError::Unknown(Box::new(err))
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -13,12 +21,13 @@ pub struct InMemoryStorageLayer {
 }
 
 impl StorageLayer for InMemoryStorageLayer {
-    fn put(&self, key: String, value: String) {
+    fn put(&self, key: String, value: String) -> KvResult<()> {
         self.data.lock().unwrap().insert(key, value);
+        Ok(())
     }
 
-    fn get(&self, key: &str) -> Option<String> {
-        self.data.lock().unwrap().get(key).cloned()
+    fn get(&self, key: &str) -> KvResult<Option<String>> {
+        Ok(self.data.lock().unwrap().get(key).cloned())
     }
 }
 
@@ -28,22 +37,23 @@ pub struct RocksDbStorageLayer {
 }
 
 impl RocksDbStorageLayer {
-    pub fn new(path: String) -> RocksDbStorageLayer {
-        RocksDbStorageLayer {
-            db: Arc::new(rocksdb::DB::open_default(path).unwrap()),
-        }
+    pub fn new(path: String) -> KvResult<RocksDbStorageLayer> {
+        Ok(RocksDbStorageLayer {
+            db: Arc::new(rocksdb::DB::open_default(path)?),
+        })
     }
 }
 
 impl StorageLayer for RocksDbStorageLayer {
-    fn put(&self, key: String, value: String) {
-        self.db.put(key.as_bytes(), value.as_bytes()).unwrap();
+    fn put(&self, key: String, value: String) -> KvResult<()> {
+        self.db.put(key.as_bytes(), value.as_bytes())?;
+        Ok(())
     }
 
-    fn get(&self, key: &str) -> Option<String> {
-        self.db
-            .get(key.as_bytes())
-            .unwrap()
-            .map(|v| String::from_utf8(v.to_vec()).unwrap())
+    fn get(&self, key: &str) -> KvResult<Option<String>> {
+        Ok(self
+            .db
+            .get(key.as_bytes())?
+            .map(|v| String::from_utf8(v.to_vec()).unwrap()))
     }
 }

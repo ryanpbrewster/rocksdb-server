@@ -36,21 +36,25 @@ impl<T: StorageLayer> server::KvStore for ServerImpl<T> {
 
     fn put(&mut self, request: Request<PutRequest>) -> Self::PutFuture {
         println!("PutRequest = {:?}", request);
-        self.storage.put(
+        let result = self.storage.put(
             request.get_ref().key.clone(),
             request.get_ref().value.clone(),
         );
-        future::ok(Response::new(PutResponse {}))
+        match result {
+            Ok(_) => future::ok(Response::new(PutResponse {})),
+            Err(err) => future::err(err.into()),
+        }
     }
 
     fn get(&mut self, request: Request<GetRequest>) -> Self::GetFuture {
         println!("GetRequest = {:?}", request);
 
         let key = request.get_ref().key.clone();
-        if let Some(value) = self.storage.get(&request.get_ref().key) {
-            future::ok(Response::new(GetResponse { value }))
-        } else {
-            future::err(Status::new(Code::NotFound, format!("no such key: {}", key)))
+        let result = self.storage.get(&request.get_ref().key);
+        match result {
+            Ok(Some(value)) => future::ok(Response::new(GetResponse { value })),
+            Ok(None) => future::err(Status::new(Code::NotFound, format!("no such key: {}", key))),
+            Err(err) => future::err(err.into()),
         }
     }
 }
