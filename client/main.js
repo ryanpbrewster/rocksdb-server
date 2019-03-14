@@ -53,6 +53,14 @@ async function main() {
       resolve();
     });
   });
+
+  console.log("starting full scan...");
+  let scan = client.scan({});
+  await new Promise(resolve => {
+    scan.on('data', r => { console.log(r); });
+    scan.on('end', () => { resolve(); });
+    scan.on('error', e => { console.error(e); resolve(); });
+  });
 }
 
 main();

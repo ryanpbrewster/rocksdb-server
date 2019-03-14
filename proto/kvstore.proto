@@ -8,6 +8,7 @@ service KvStore {
 
   rpc Put (PutRequest) returns (PutResponse) {}
   rpc Get (GetRequest) returns (GetResponse) {}
+  rpc Scan (ScanRequest) returns (stream ScanResponse) {}
 }
 
 // The request message containing the user's name.
@@ -38,4 +39,16 @@ message GetRequest {
 // response to a Get request
 message GetResponse {
   string value = 1;
+}
+
+// request to Scan a contiguous range of key-value pairs
+message ScanRequest {
+  string start = 1; // ignored if empty
+  string end = 2;   // ignored if empty
+}
+
+// response to a Scan request
+message ScanResponse {
+  string key = 1;
+  string value = 2;
 }

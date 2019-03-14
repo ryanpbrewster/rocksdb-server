@@ -1,8 +1,12 @@
 use futures::future;
+use futures::Stream;
 use tower_grpc::{Code, Request, Response, Status};
 
 use crate::proto::server;
-use crate::proto::{GetRequest, GetResponse, HelloRequest, HelloResponse, PutRequest, PutResponse};
+use crate::proto::{
+    GetRequest, GetResponse, HelloRequest, HelloResponse, PutRequest, PutResponse, ScanRequest,
+    ScanResponse,
+};
 use crate::storage::StorageLayer;
 
 #[derive(Clone, Debug, Default)]
@@ -23,6 +27,9 @@ impl<T: StorageLayer> server::KvStore for ServerImpl<T> {
     type SayHelloFuture = future::FutureResult<Response<HelloResponse>, Status>;
     type PutFuture = future::FutureResult<Response<PutResponse>, Status>;
     type GetFuture = future::FutureResult<Response<GetResponse>, Status>;
+
+    type ScanStream = Box<Stream<Item = ScanResponse, Error = Status> + Send>;
+    type ScanFuture = future::FutureResult<Response<Self::ScanStream>, Status>;
 
     fn say_hello(&mut self, request: Request<HelloRequest>) -> Self::SayHelloFuture {
         println!("HelloRequest = {:?}", request);
@@ -56,5 +63,13 @@ impl<T: StorageLayer> server::KvStore for ServerImpl<T> {
             Ok(None) => future::err(Status::new(Code::NotFound, format!("no such key: {}", key))),
             Err(err) => future::err(err.into()),
         }
+    }
+
+    fn scan(&mut self, request: Request<ScanRequest>) -> Self::ScanFuture {
+        println!("ScanRequest = {:?}", request);
+        future::err(Status::new(
+            Code::Unimplemented,
+            "scan not yet implemented".to_owned(),
+        ))
     }
 }
