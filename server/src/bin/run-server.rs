@@ -4,10 +4,11 @@ use tokio::net::TcpListener;
 use tower_h2::Server;
 
 use rocksdb_server::server::ServerImpl;
-use rocksdb_server::storage::RocksDbStorageLayer;
+use rocksdb_server::storage::{RocksDbStorageLayer, InMemoryStorageLayer};
 
 pub fn main() {
     let store = RocksDbStorageLayer::new("/tmp/foo".to_string()).expect("open rocksdb");
+    // let store = InMemoryStorageLayer::default();
     let kvstore_service = ServerImpl::new(store);
     let mut server = Server::new(
         kvstore_service.into_service(),

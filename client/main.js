@@ -19,8 +19,9 @@ async function main() {
   });
 
   console.log("starting put...");
+  const my_key = `my_key_${Date.now()}`;
   await new Promise(resolve => {
-    client.put({ key: "my_key", value: `t = ${Date.now()}` }, (err, resp) => {
+    client.put({ key: my_key, value: `rnd = ${Math.random()}` }, (err, resp) => {
       if (err) {
         console.error(err);
       } else {
@@ -32,7 +33,7 @@ async function main() {
 
   console.log("starting first get...");
   await new Promise(resolve => {
-    client.get({ key: "my_key" }, (err, resp) => {
+    client.get({ key: my_key }, (err, resp) => {
       if (err) {
         console.error(err);
       } else {

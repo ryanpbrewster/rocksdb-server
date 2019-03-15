@@ -1,5 +1,6 @@
 use futures::future;
-use futures::Stream;
+use futures::{Stream};
+use std::ops::Bound;
 use tower_grpc::{Code, Request, Response, Status};
 
 use crate::proto::server;
@@ -67,9 +68,19 @@ impl<T: StorageLayer> server::KvStore for ServerImpl<T> {
 
     fn scan(&mut self, request: Request<ScanRequest>) -> Self::ScanFuture {
         println!("ScanRequest = {:?}", request);
-        future::err(Status::new(
-            Code::Unimplemented,
-            "scan not yet implemented".to_owned(),
-        ))
+        let start = to_bound(request.get_ref().start.to_owned());
+        let end = to_bound(request.get_ref().end.to_owned());
+        let receiver = self.storage.scan(start, end);
+        future::ok(Response::new(Box::new(receiver.map(|(k, v)| {
+            ScanResponse { key: k, value: v }
+        }).map_err(|_| Status::new(Code::Unknown, "scan failed".to_owned())))))
+    }
+}
+
+fn to_bound(key: String) -> Bound<String> {
+    if key.is_empty() {
+        Bound::Unbounded
+    } else {
+        Bound::Included(key)
     }
 }
