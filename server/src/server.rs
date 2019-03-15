@@ -1,5 +1,5 @@
 use futures::future;
-use futures::{Stream};
+use futures::Stream;
 use std::ops::Bound;
 use tower_grpc::{Code, Request, Response, Status};
 
@@ -71,9 +71,11 @@ impl<T: StorageLayer> server::KvStore for ServerImpl<T> {
         let start = to_bound(request.get_ref().start.to_owned());
         let end = to_bound(request.get_ref().end.to_owned());
         let receiver = self.storage.scan(start, end);
-        future::ok(Response::new(Box::new(receiver.map(|(k, v)| {
-            ScanResponse { key: k, value: v }
-        }).map_err(|_| Status::new(Code::Unknown, "scan failed".to_owned())))))
+        future::ok(Response::new(Box::new(
+            receiver
+                .map(|(k, v)| ScanResponse { key: k, value: v })
+                .map_err(|_| Status::new(Code::Unknown, "scan failed".to_owned())),
+        )))
     }
 }
 

@@ -4,7 +4,7 @@ use tokio::net::TcpListener;
 use tower_h2::Server;
 
 use rocksdb_server::server::ServerImpl;
-use rocksdb_server::storage::{RocksDbStorageLayer, InMemoryStorageLayer};
+use rocksdb_server::storage::RocksDbStorageLayer;
 
 pub fn main() {
     let store = RocksDbStorageLayer::new("/tmp/foo".to_string()).expect("open rocksdb");

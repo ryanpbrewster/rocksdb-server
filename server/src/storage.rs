@@ -1,18 +1,19 @@
-use std::collections::{Bound};
 use std::collections::BTreeMap;
+use std::collections::Bound;
 use std::ops::RangeBounds;
 use std::sync::{Arc, Mutex};
 
 use futures::sync::mpsc::UnboundedReceiver;
 use rocksdb;
-use rocksdb::{IteratorMode};
+use rocksdb::IteratorMode;
 
 use crate::{KvError, KvResult};
 
 pub trait StorageLayer: Clone {
     fn put(&self, key: String, value: String) -> KvResult<()>;
     fn get(&self, key: &str) -> KvResult<Option<String>>;
-    fn scan(&self, start: Bound<String>, end: Bound<String>) -> UnboundedReceiver<(String, String)>;
+    fn scan(&self, start: Bound<String>, end: Bound<String>)
+        -> UnboundedReceiver<(String, String)>;
 }
 
 impl From<rocksdb::Error> for KvError {
@@ -36,7 +37,11 @@ impl StorageLayer for InMemoryStorageLayer {
         Ok(self.data.lock().unwrap().get(key).cloned())
     }
 
-    fn scan(&self, start: Bound<String>, end: Bound<String>) -> UnboundedReceiver<(String, String)> {
+    fn scan(
+        &self,
+        start: Bound<String>,
+        end: Bound<String>,
+    ) -> UnboundedReceiver<(String, String)> {
         let (sender, receiver) = futures::sync::mpsc::unbounded();
         let db = self.data.clone();
         println!("starting scan");
@@ -76,7 +81,11 @@ impl StorageLayer for RocksDbStorageLayer {
             .map(|v| String::from_utf8(v.to_vec()).unwrap()))
     }
 
-    fn scan(&self, start: Bound<String>, end: Bound<String>) -> UnboundedReceiver<(String, String)> {
+    fn scan(
+        &self,
+        start: Bound<String>,
+        end: Bound<String>,
+    ) -> UnboundedReceiver<(String, String)> {
         let (sender, receiver) = futures::sync::mpsc::unbounded();
         let db = self.db.clone();
         println!("starting scan");
@@ -86,7 +95,9 @@ impl StorageLayer for RocksDbStorageLayer {
                 let key = String::from_utf8(k.to_vec()).unwrap();
                 // TODO: optimize this scan by seeking to the start and quitting once we're past the end
                 if bounds.contains(&key) {
-                    sender.unbounded_send((key, String::from_utf8(v.to_vec()).unwrap())).unwrap();
+                    sender
+                        .unbounded_send((key, String::from_utf8(v.to_vec()).unwrap()))
+                        .unwrap();
                 }
             }
             println!("done scanning");
